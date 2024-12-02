@@ -11,10 +11,23 @@ from .models import WeatherWeather, WeatherCity, WeatherCountry
 from .forms import WeatherForm 
 import pandas as pd
 
+
 def all_weather(request):
         usa = WeatherCountry.objects.get(name="USA")
         cities = WeatherCity.objects.filter(country=usa).order_by('name')
-        return render(request, 'all_weather.html', {'cities': cities})
+        weather_data = None
+        selected_city = None
+        if request.method == 'POST':
+            city_id = request.POST.get('city')
+            if city_id:
+                selected_city = WeatherCity.objects.get(id=city_id)
+                weather_data = WeatherWeather.objects.filter(city_id=city_id).order_by('date')
+
+        return render(request, 'all_weather.html', {
+            'cities': cities,
+            'weather_data': weather_data,
+            'selected_city': selected_city,
+        })
 
 
 def generate_graph(dates, temperatures, humidities, title, xlabel):
