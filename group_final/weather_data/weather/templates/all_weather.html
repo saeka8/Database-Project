@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Weather Data</title>
+    <title>Home</title>
     <script>
         function redirectToCityWeather(cityId) {
             if (cityId) {
@@ -11,11 +11,51 @@
             }
         }
     </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        nav {
+            margin-bottom: 20px;
+        }
+        nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #007BFF;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        table th {
+            background-color: #f2f2f2;
+        }
+        .crud-buttons a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: #007BFF;
+        }
+        .crud-buttons a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>All Weather Data</h1>
+    <h1>Home</h1>
     <nav>
         <a href="{% url 'create_weather' %}">Add Weather Data</a>
+        <a href="{% url 'weather_visualization' %}">Visualization</a>
     </nav>
     <div>
         <form method="post">
