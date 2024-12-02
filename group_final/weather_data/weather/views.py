@@ -12,13 +12,10 @@ from .forms import WeatherForm
 import pandas as pd
 
 def all_weather(request):
-    countries = WeatherCountry.objects.all()
-    return render(request, 'all_weather.html', {'countries': countries})
+        usa = WeatherCountry.objects.get(name="USA")
+        cities = WeatherCity.objects.filter(country=usa).order_by('name')
+        return render(request, 'all_weather.html', {'cities': cities})
 
-#get city which along the country
-def get_cities(request, country_id):
-    cities = WeatherCity.objects.filter(country_id=country_id).order_by('name').values('id', 'name')
-    return JsonResponse({'cities': list(cities)})
 
 def generate_graph(dates, temperatures, humidities, title, xlabel):
     fig, ax1 = plt.subplots(figsize=(10, 5))
@@ -82,3 +79,4 @@ def create_weather(request):
     else:
         form = WeatherForm()
     return render(request, 'create_weather.html', {'form': form})
+
