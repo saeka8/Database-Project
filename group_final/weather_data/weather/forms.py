@@ -7,7 +7,7 @@ class WeatherForm(forms.ModelForm):
         model = WeatherWeather
         fields = ['city','date', 'temperature', 'humidity']
         widgets = {
-            'city': forms.Select(attrs={'onchange': 'updateCities()'}),
+            'city': forms.Select(),
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
