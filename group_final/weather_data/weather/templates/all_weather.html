@@ -87,6 +87,9 @@
                 <td>{{ data.date }}</td>
                 <td>{{ data.temperature }}</td>
                 <td>{{ data.humidity }}</td>
+                <td class="crud-buttons">
+                    <a href="{% url 'edit_weather' data.id %}">Edit</a>
+                    <a href="{% url 'delete_weather' data.id %}">Delete</a>
             </tr>
             {% endfor %}
         </tbody>
