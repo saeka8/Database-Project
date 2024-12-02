@@ -53,9 +53,9 @@ def generate_graph(dates, temperatures, humidities, title, xlabel):
     return uri
 
 
-
 def city_weather(request, city_id):
     weather_data = WeatherWeather.objects.filter(city_id=city_id).order_by('date')
+    city = WeatherCity.objects.get(id=city_id)
     df = pd.DataFrame(list(weather_data.values('date', 'temperature', 'humidity')))
     df['date'] = pd.to_datetime(df['date'])
     df.set_index('date', inplace=True)
@@ -63,12 +63,17 @@ def city_weather(request, city_id):
     # Calculate monthly averages across all years
     monthly_avg = df.groupby(df.index.month).mean()
     monthly_avg.index = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    average_graph = generate_graph(monthly_avg.index, monthly_avg['temperature'], monthly_avg['humidity'], 'Average Temperature and Humidity Per Month', 'Month')
+    #average_graph = generate_graph(monthly_avg.index, monthly_avg['temperature'], monthly_avg['humidity'], 'Average Temperature and Humidity Per Month', 'Month')
+
+    dates = monthly_avg.index.tolist()
+    avg_temps = monthly_avg['temperature'].tolist()
+    avg_humidities = monthly_avg['humidity'].tolist()
 
     return render(request, 'city_weather.html', {
-        'weather_data': weather_data,
-        'average_graph': average_graph,
-        
+        'city':city,
+        'dates': json.dumps(dates),
+        'avg_temps':json.dumps(avg_temps),
+        'avg_humidities': json.dumps(avg_humidities),
     })
 
 
