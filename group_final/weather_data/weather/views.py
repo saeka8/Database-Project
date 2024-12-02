@@ -1,4 +1,4 @@
-import matplotlib,urllib, base64
+import matplotlib,urllib, base64, json
 matplotlib.use('Agg')
 import pandas as pd
 import matplotlib.pyplot as plt
