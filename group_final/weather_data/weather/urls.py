@@ -19,8 +19,10 @@ from .views import all_weather, create_weather, city_weather, weather_visualizat
 
 urlpatterns = [
     path('', all_weather, name='all_weather'),
+    path('edit/<int:pk>/', edit_weather, name='edit_weather'),
+    path('delete/<int:pk>/', delete_weather, name='delete_weather'),
     path('create/', create_weather, name='create_weather'),
     path('city_weather/<int:city_id>/', city_weather, name='city_weather'),
-    path('visualization/',weather_visualization,name ='weather_visualization')
-]
+    path('visualization/',weather_visualization,name ='weather_visualization'),
 
+]
