@@ -1,11 +1,10 @@
-import matplotlib,urllib, base64, json
+import matplotlib,urllib, base64,json
 matplotlib.use('Agg')
 import pandas as pd
 import matplotlib.pyplot as plt
 from io import BytesIO
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Avg
 from .models import WeatherWeather, WeatherCity, WeatherCountry
 from .forms import WeatherForm 
 
@@ -53,6 +52,7 @@ def generate_graph(dates, temperatures, humidities, title, xlabel):
     return uri
 
 
+
 def city_weather(request, city_id):
     weather_data = WeatherWeather.objects.filter(city_id=city_id).order_by('date')
     city = WeatherCity.objects.get(id=city_id)
@@ -87,4 +87,17 @@ def create_weather(request):
         form = WeatherForm()
     return render(request, 'create_weather.html', {'form': form})
 
+def weather_visualization(request):
+    data = WeatherWeather.objects.values('city__name').annotate(
+        avg_temp=Avg('temperature'),
+        avg_humidity=Avg('humidity')
+    )
+    cities = [item['city__name'] for item in data]
+    avg_temps = [item['avg_temp'] for item in data]
+    avg_humidities = [item['avg_humidity'] for item in data]
+    return render(request, 'visualization.html', {
+        'cities': json.dumps(cities),
+        'avg_temps': json.dumps(avg_temps),
+        'avg_humidities': json.dumps(avg_humidities),
+    })
 
