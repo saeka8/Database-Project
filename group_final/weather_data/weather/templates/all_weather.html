@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Weather Data</title>
     <script>
-        
-        function redirectToCityData() {
-            var citySelect = document.getElementById("citySelect");
-            var cityId = citySelect.value;
+        function redirectToCityWeather(cityId) {
             if (cityId) {
                 window.location.href = `/city_weather/${cityId}/`;
             }
@@ -19,19 +16,41 @@
     <h1>All Weather Data</h1>
     <nav>
         <a href="{% url 'create_weather' %}">Add Weather Data</a>
-
     </nav>
     <div>
-        <label for="citySelect">Select City:</label>
-        <select id="citySelect">
-            <option value="">Select a city</option>
-            {% for city in cities %}
-            <option value="{{ city.id }}">{{ city.name }}</option>
-            {% endfor %}          
-        </select>
-        <button onclick="redirectToCityData()">View</button>
+        <form method="post">
+            {% csrf_token %}
+            <label for="citySelect">Select City:</label>
+            <select id="citySelect" name="city">
+                <option value="">Select a city</option>
+                {% for city in cities %}
+                <option value="{{ city.id }}" {% if selected_city and selected_city.id == city.id %}selected{% endif %}>{{ city.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">View</button>
+        </form>
     </div>
-
-    
+    {% if weather_data %}
+    <h2>Weather Data for {{ selected_city.name }}</h2>
+    <button onclick="redirectToCityWeather('{{ selected_city.id }}')">View Graphs</button>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temperature (°F)</th>
+                <th>Humidity (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in weather_data %}
+            <tr>
+                <td>{{ data.date }}</td>
+                <td>{{ data.temperature }}</td>
+                <td>{{ data.humidity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
 </body>
 </html>
