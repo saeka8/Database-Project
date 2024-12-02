@@ -78,7 +78,9 @@
             <tr>
                 <th>Date</th>
                 <th>Temperature (°F)</th>
+                <th>Temperature (°C)</th>
                 <th>Humidity (%)</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -86,6 +88,7 @@
             <tr>
                 <td>{{ data.date }}</td>
                 <td>{{ data.temperature }}</td>
+                <td>{{ data.temperature_celsius|floatformat:2 }}</td>
                 <td>{{ data.humidity }}</td>
                 <td class="crud-buttons">
                     <a href="{% url 'edit_weather' data.id %}">Edit</a>
