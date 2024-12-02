@@ -8,9 +8,6 @@
     <script>
         function showGraph(graphType) {
             document.getElementById('averageGraph').style.display = 'none';
-            document.getElementById('year2016Graph').style.display = 'none';
-            document.getElementById('year2017Graph').style.display = 'none';
-
             document.getElementById(graphType).style.display = 'block';
         }
     </script>
@@ -18,19 +15,10 @@
 <body>
     <h1>Weather Data for {{ weather_data.0.city.name }}</h1>
     <div class="btn-group" role="group" aria-label="Graph selection">
-        <button type="button" class="btn btn-primary" onclick="showGraph('averageGraph')">Average Temperature and Humidity</button>
-        <button type="button" class="btn btn-primary" onclick="showGraph('year2016Graph')">2016</button>
-        <button type="button" class="btn btn-primary" onclick="showGraph('year2017Graph')">2017</button>
     </div>
 
     <div id="averageGraph" style="display: block;">
         <img src="data:image/png;base64,{{ average_graph }}" alt="Average Temperature and Humidity Graph"/>
-    </div>
-    <div id="year2016Graph" style="display: none;">
-        <img src="data:image/png;base64,{{ year2016_graph }}" alt="2016 Temperature and Humidity Graph"/>
-    </div>
-    <div id="year2017Graph" style="display: none;">
-        <img src="data:image/png;base64,{{ year2017_graph }}" alt="2017 Temperature and Humidity Graph"/>
     </div>
     
 
