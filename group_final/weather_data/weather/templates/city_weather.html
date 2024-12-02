@@ -9,27 +9,36 @@
 </head>
 <body>
     <h1>Weather Data for {{ city.name }}</h1>
+    <button id="toggleUnit" class="btn btn-primary">Switch to °C</button>
     <canvas id="weatherChart"></canvas>
     <script>
+        let isFahrenheit = true;
+        const dates = JSON.parse('{{ dates|safe }}');
+        const avgTempsF = JSON.parse('{{ avg_temps|safe }}');
+        const avgTempsC = avgTempsF.map(temp => (temp - 32) * 5.0 / 9.0);
+        const avgHumidities = JSON.parse('{{ avg_humidities|safe }}');
+
         const ctx = document.getElementById('weatherChart').getContext('2d');
         const weatherChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: JSON.parse('{{ dates|safe }}'),
+                labels: dates,
                 datasets: [
                     {
                         label: 'Average Temperature',
-                        data: JSON.parse('{{ avg_temps|safe }}'),
+                        data: avgTempsF,
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 2,
                         fill: false,
+                        yAxisID: 'y-temp',
                     },
                     {
                         label: 'Average Humidity',
-                        data: JSON.parse('{{ avg_humidities|safe }}'),
+                        data: avgHumidities,
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 2,
                         fill: false,
+                        yAxisID:'y-humidity',
                     }
                 ]
             },
@@ -37,9 +46,36 @@
                 responsive: true,
                 scales: {
                     x: { title: { display: true, text: 'Month' } },
-                    y: { title: { display: true, text: 'Values' }, min: 0, max: 100 }
+                    'y-temp':{
+                        type:'linear',
+                        position:'left',
+                        title:{display:true,text:'Temperature (°F)'},
+                        min:0,
+                        max:100,
+                    },
+                    'y-humidity': { 
+                        type:'linear',
+                        position:'right',
+                        title:{ display: true, text: 'Humidity (%)' },
+                        min:0,
+                        max:100,
+                        grid:{
+                            drawOnChartArea: false,
+                        },
+                    }
                 }
             }
+        });
+
+        document.getElementById('toggleUnit').addEventListener('click', () => {
+            isFahrenheit = !isFahrenheit;
+            weatherChart.data.datasets[0].data = isFahrenheit ? avgTempsF : avgTempsC;
+            weatherChart.data.datasets[0].label = isFahrenheit ? 'Average Temperature (°F)' : 'Average Temperature (°C)';
+            weatherChart.options.scales['y-temp'].title.text = isFahrenheit ? 'Temperature (°F)' : 'Temperature (°C)';
+            weatherChart.options.scales['y-temp'].min = isFahrenheit ? 0 : -30;
+            weatherChart.options.scales['y-temp'].max = isFahrenheit ? 100 : 50;            
+            weatherChart.update();
+            document.getElementById('toggleUnit').innerText = isFahrenheit ? 'Switch to °C' : 'Switch to °F';
         });
     </script>
     <a href="{% url 'all_weather' %}">Back to Home</a>
