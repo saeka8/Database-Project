@@ -19,7 +19,8 @@ def all_weather(request):
             if city_id:
                 selected_city = WeatherCity.objects.get(id=city_id)
                 weather_data = WeatherWeather.objects.filter(city_id=city_id).order_by('date')
-
+                for data in weather_data:
+                    data.temperature_celsius = (data.temperature - 32) * 5.0/9.0
         return render(request, 'all_weather.html', {
             'cities': cities,
             'weather_data': weather_data,
