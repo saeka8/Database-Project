@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Weather Data</title>
+    <script>
+        function updateCities() {
+            var countrySelect = document.getElementById("id_country");
+            var citySelect = document.getElementById("id_city");
+            var countryId = countrySelect.value;
+
+            // clear all current cities options
+            citySelect.innerHTML = "";
+
+            // fetch cities for the selected country
+            fetch(`/get_cities/${countryId}/`)
+                .then(response => response.json())
+                .then(data => {
+                     // Sort Cities in alphabetical
+                    data.cities.sort((a, b) => a.name.localeCompare(b.name));
+                    // For each country, get city belong that country
+                    data.cities.forEach(city => {
+                        var option = document.createElement("option");
+                        option.value = city.id;
+                        option.text = city.name;
+                        citySelect.add(option);
+                    });
+                });
+        }
+    </script>
+</head>
+<body>
+    <h1>Add Weather Data</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+    <a href="{% url 'all_weather' %}">Back to Home</a>
+</body>
+</html>

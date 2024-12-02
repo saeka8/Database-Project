@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Weather Data</title>
+    <script>
+        function updateCities() {
+            var countrySelect = document.getElementById("countrySelect");
+            var citySelect = document.getElementById("citySelect");
+            var countryId = countrySelect.value;
+
+            // Clear current city options
+            citySelect.innerHTML = "";
+
+            // Fetch cities for the selected country
+            fetch(`/get_cities/${countryId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Sort cities alphabetically by name
+                    data.cities.sort((a, b) => a.name.localeCompare(b.name));
+                    data.cities.forEach(city => {
+                        var option = document.createElement("option");
+                        option.value = city.id;
+                        option.text = city.name;
+                        citySelect.add(option);
+                    });
+                });
+        }
+
+        function redirectToCityData() {
+            var citySelect = document.getElementById("citySelect");
+            var cityId = citySelect.value;
+            if (cityId) {
+                window.location.href = `/city_weather/${cityId}/`;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>All Weather Data</h1>
+    <nav>
+        <a href="{% url 'create_weather' %}">Add Weather Data</a>
+
+    </nav>
+    <div>
+        <label for="countrySelect">Select Country:</label>
+        <select id="countrySelect" onchange="updateCities()">
+            <option value="">Select a country</option>
+            {% for country in countries %}
+            <option value="{{ country.id }}">{{ country.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="citySelect">Select City:</label>
+        <select id="citySelect">
+            <option value="">Select a city</option>          
+        </select>
+        <button onclick="redirectToCityData()">View</button>
+    </div>
+
+    
+</body>
+</html>
