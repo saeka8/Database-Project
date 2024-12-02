@@ -5,25 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>City Weather Data</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script>
-        function showGraph(graphType) {
-            document.getElementById('averageGraph').style.display = 'none';
-            document.getElementById(graphType).style.display = 'block';
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Weather Data for {{ weather_data.0.city.name }}</h1>
-    <div class="btn-group" role="group" aria-label="Graph selection">
-    </div>
-
-    <div id="averageGraph" style="display: block;">
-        <img src="data:image/png;base64,{{ average_graph }}" alt="Average Temperature and Humidity Graph"/>
-    </div>
-    
-
+    <h1>Weather Data for {{ city.name }}</h1>
+    <canvas id="weatherChart"></canvas>
+    <script>
+        const ctx = document.getElementById('weatherChart').getContext('2d');
+        const weatherChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: JSON.parse('{{ dates|safe }}'),
+                datasets: [
+                    {
+                        label: 'Average Temperature',
+                        data: JSON.parse('{{ avg_temps|safe }}'),
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                    },
+                    {
+                        label: 'Average Humidity',
+                        data: JSON.parse('{{ avg_humidities|safe }}'),
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Month' } },
+                    y: { title: { display: true, text: 'Values' }, min: 0, max: 100 }
+                }
+            }
+        });
+    </script>
     <a href="{% url 'all_weather' %}">Back to All Weather Data</a>
-
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
