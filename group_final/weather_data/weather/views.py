@@ -100,4 +100,22 @@ def weather_visualization(request):
         'avg_temps': json.dumps(avg_temps),
         'avg_humidities': json.dumps(avg_humidities),
     })
+def edit_weather(request, pk):
+    weather = WeatherWeather.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = WeatherForm(request.POST, instance=weather)
+        if form.is_valid():
+            form.save()
+            return redirect('all_weather')
+    else:
+        form = WeatherForm(instance=weather)
+    return render(request, 'edit_weather.html', {'form': form})
+
+def delete_weather(request, pk):
+    weather = WeatherWeather.objects.get(pk=pk)
+    if request.method == 'POST':
+        weather.delete()
+        return redirect('all_weather')
+    return render(request, 'delete_weather.html', {'weather': weather})
+
 
