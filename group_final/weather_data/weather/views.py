@@ -118,4 +118,3 @@ def delete_weather(request, pk):
         return redirect('all_weather')
     return render(request, 'delete_weather.html', {'weather': weather})
 
-
