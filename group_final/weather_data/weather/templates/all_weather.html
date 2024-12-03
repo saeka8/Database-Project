@@ -3,100 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Weather Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
     <script>
+        let tempUnit = 'F';
+        
         function redirectToCityWeather(cityId) {
             if (cityId) {
                 window.location.href = `/city_weather/${cityId}/`;
             }
         }
+
+        function changeTempUnit() {
+            if (tempUnit == 'F') {
+                tempUnit = 'C';
+                    document.querySelectorAll('.tempUnitFahr').forEach(function(element) {
+                    element.classList.add('hidden');
+                });
+                    document.querySelectorAll('.tempUnitCels').forEach(function(element) {
+                    element.classList.remove('hidden');
+                });
+        
+            } else {
+                tempUnit = 'F';
+                    document.querySelectorAll('.tempUnitFahr').forEach(function(element) {
+                    element.classList.remove('hidden');
+                });
+                    document.querySelectorAll('.tempUnitCels').forEach(function(element) {
+                    element.classList.add('hidden');
+                });
+            }
+        }
     </script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            color: #444;
+            text-align: center;
+            margin-top: 20px;
         }
         nav {
-            margin-bottom: 20px;
+            text-align: center;
+            margin: 20px 0;
         }
         nav a {
-            margin-right: 15px;
+            font-size: 16px;
+            margin: 0 15px;
             text-decoration: none;
             color: #007BFF;
+            font-weight: 500;
         }
         nav a:hover {
             text-decoration: underline;
         }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 20px;
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            max-width: 1200px;
         }
-        table th, table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+        .form-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        select, button {
+            padding: 10px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .weather-table {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            border-collapse: collapse;
+        }
+        .weather-table th, .weather-table td {
+            padding: 12px;
             text-align: center;
         }
-        table th {
-            background-color: #f2f2f2;
+        .weather-table th {
+            background-color: #007BFF;
+            color: white;
+            font-size: 18px;
         }
-        .crud-buttons a {
-            margin-right: 10px;
-            text-decoration: none;
+        .weather-table td {
+            background-color: white;
+            border-top: 1px solid #ddd;
+        }
+        .weather-table td a {
             color: #007BFF;
+            text-decoration: none;
+            margin-right: 10px;
         }
-        .crud-buttons a:hover {
+        .weather-table td a:hover {
             text-decoration: underline;
+        }
+        .weather-table .hidden {
+            display: none;
+        }
+        .btn-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .btn-container button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn-container .view-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-container .view-btn:hover {
+            background-color: #218838;
+        }
+        .btn-container .unit-btn {
+            background-color: #ffc107;
+            color: white;
+        }
+        .btn-container .unit-btn:hover {
+            background-color: #e0a800;
+        }
+        @media (max-width: 768px) {
+            .weather-table td, .weather-table th {
+                font-size: 14px;
+                padding: 8px;
+            }
+            .form-container {
+                flex-direction: column;
+            }
+            select, button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Home</h1>
-    <nav>
-        <a href="{% url 'create_weather' %}">Add Weather Data</a>
-        <a href="{% url 'weather_visualization' %}">Visualization</a>
-    </nav>
-    <div>
-        <form method="post">
-            {% csrf_token %}
-            <label for="citySelect">Select City:</label>
-            <select id="citySelect" name="city">
-                <option value="">Select a city</option>
-                {% for city in cities %}
-                <option value="{{ city.id }}" {% if selected_city and selected_city.id == city.id %}selected{% endif %}>{{ city.name }}</option>
+    <div class="container">
+        <h1>Weather Home</h1>
+        <nav>
+            <a href="{% url 'create_weather' %}">Add Weather Data</a>
+            <a href="{% url 'weather_visualization' %}">Visualization</a>
+        </nav>
+
+        <div class="form-container">
+            <form method="post">
+                {% csrf_token %}
+                <label for="citySelect">Select City:</label>
+                <select id="citySelect" name="city">
+                    <option value="">Select a city</option>
+                    {% for city in cities %}
+                    <option value="{{ city.id }}" {% if selected_city and selected_city.id == city.id %}selected{% endif %}>{{ city.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">View</button>
+            </form>
+        </div>
+
+        {% if weather_data %}
+        <h2>Weather Data for {{ selected_city.name }}</h2>
+        <div class="btn-container">
+            <button class="view-btn" onclick="redirectToCityWeather('{{ selected_city.id }}')">View Graphs</button>
+            <button class="unit-btn" onclick="changeTempUnit()">Change Temperature Unit</button>
+        </div>
+        
+        <table class="weather-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th class="tempUnitFahr">Temperature (°F)</th>
+                    <th class="tempUnitCels hidden">Temperature (°C)</th>
+                    <th>Humidity (%)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in weather_data %}
+                <tr>
+                    <td>{{ data.date }}</td>
+                    <td class="tempUnitFahr">{{ data.temperature }}</td>
+                    <td class="tempUnitCels hidden">{{ data.temperature_celsius|floatformat:2 }}</td>
+                    <td>{{ data.humidity }}</td>
+                    <td>
+                        <a href="{% url 'edit_weather' data.id %}">Edit</a>
+                        <a href="{% url 'delete_weather' data.id %}">Delete</a>
+                    </td>
+                </tr>
                 {% endfor %}
-            </select>
-            <button type="submit">View</button>
-        </form>
+            </tbody>
+        </table>
+        {% endif %}
     </div>
-    {% if weather_data %}
-    <h2>Weather Data for {{ selected_city.name }}</h2>
-    <button onclick="redirectToCityWeather('{{ selected_city.id }}')">View Graphs</button>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temperature (°F)</th>
-                <th>Temperature (°C)</th>
-                <th>Humidity (%)</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for data in weather_data %}
-            <tr>
-                <td>{{ data.date }}</td>
-                <td>{{ data.temperature }}</td>
-                <td>{{ data.temperature_celsius|floatformat:2 }}</td>
-                <td>{{ data.humidity }}</td>
-                <td class="crud-buttons">
-                    <a href="{% url 'edit_weather' data.id %}">Edit</a>
-                    <a href="{% url 'delete_weather' data.id %}">Delete</a>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endif %}
 </body>
 </html>
