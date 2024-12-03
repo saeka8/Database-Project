@@ -8,7 +8,6 @@ from django.db.models import Avg
 from .models import WeatherWeather, WeatherCity, WeatherCountry
 from .forms import WeatherForm 
 
-
 def all_weather(request):
         usa = WeatherCountry.objects.get(name="USA")
         cities = WeatherCity.objects.filter(country=usa).order_by('name')
@@ -89,18 +88,31 @@ def create_weather(request):
     return render(request, 'create_weather.html', {'form': form})
 
 def weather_visualization(request):
-    data = WeatherWeather.objects.values('city__name').annotate(
+    city_filter = request.GET.get('city', None)
+
+    queryset = WeatherWeather.objects.values('city__name').annotate(
         avg_temp=Avg('temperature'),
         avg_humidity=Avg('humidity')
     )
+
+    if city_filter:
+        queryset = queryset.filter(city__name=city_filter)
+
+    data = queryset
+
     cities = [item['city__name'] for item in data]
     avg_temps = [item['avg_temp'] for item in data]
     avg_humidities = [item['avg_humidity'] for item in data]
+    all_cities = list(set([item['city__name'] for item in data]))  
+
     return render(request, 'visualization.html', {
         'cities': json.dumps(cities),
         'avg_temps': json.dumps(avg_temps),
         'avg_humidities': json.dumps(avg_humidities),
+        'all_cities': all_cities,  
+        'selected_city': city_filter  
     })
+
 def edit_weather(request, pk):
     weather = WeatherWeather.objects.get(pk=pk)
     if request.method == 'POST':
