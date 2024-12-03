@@ -1,29 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Visualization</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+            font-size: 28px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        .filter-form {
+            margin: 20px;
+            text-align: center;
+        }
+        .filter-form select, .filter-form button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        /* Full screen chart container */
+        .chart-container {
+            width: 100%;
+            height: 100vh; /* Full viewport height */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        /* Blue button styling */
+        .temp-toggle-btn {
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            margin: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .temp-toggle-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <h1>Data Visualization</h1>
-    <canvas id="cityChart"></canvas>
+
+    <!-- Temperature Unit Toggle Button -->
+    <button class="temp-toggle-btn" id="toggleTempUnit">Switch to Celsius</button>
+
+    <!-- City Filter Form -->
+    <div class="filter-form">
+        <form method="get">
+            <label for="city">Select City:</label>
+            <select id="city" name="city">
+                <option value="">All Cities</option>
+                {% for city in all_cities %}
+                    <option value="{{ city }}" {% if city == selected_city %}selected{% endif %}>{{ city }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Filter</button>
+        </form>
+    </div>
+
+    <!-- Full-Screen Chart -->
+    <div class="chart-container">
+        <canvas id="cityChart"></canvas>
+    </div>
+
+    <a href="{% url 'all_weather' %}" class="back-link">Back to Home</a>
+
     <script>
+        // Temperature unit state
+        let isCelsius = false; // default is Fahrenheit
+
+        // Function to convert Fahrenheit to Celsius
+        function fahrenheitToCelsius(fahrenheit) {
+            return ((fahrenheit - 32) * 5) / 9;
+        }
+
+        // Function to toggle temperature units
+        function toggleTempUnit() {
+            isCelsius = !isCelsius;
+            const button = document.getElementById('toggleTempUnit');
+            
+            // Update button text
+            button.innerText = isCelsius ? 'Switch to Fahrenheit' : 'Switch to Celsius';
+
+            // Update chart label based on the unit
+            cityChart.data.datasets.forEach((dataset, index) => {
+                if (index === 0) {  // Only change the temperature data (dataset[0])
+                    if (isCelsius) {
+                        // Convert temperature data to Celsius
+                        dataset.data = dataset.data.map(fahrenheit => fahrenheitToCelsius(fahrenheit).toFixed(2)); // convert to Celsius
+                        dataset.label = 'Average Temperature (°C)';  // Update label to Celsius
+                    } else {
+                        // Convert temperature data to Fahrenheit
+                        dataset.data = dataset.data.map(celsius => (celsius * 9 / 5 + 32).toFixed(2)); // convert to Fahrenheit
+                        dataset.label = 'Average Temperature (°F)';  // Update label to Fahrenheit
+                    }
+                }
+            });
+
+            // Re-render the chart with the new data
+            cityChart.update();
+        }
+
+        // Add event listener to the toggle button
+        document.getElementById('toggleTempUnit').addEventListener('click', toggleTempUnit);
+
+        // Data for chart (passed from Django)
+        const cities = JSON.parse('{{ cities|safe }}');
+        const avgTemps = JSON.parse('{{ avg_temps|safe }}');
+        const avgHumidities = JSON.parse('{{ avg_humidities|safe }}');
+
         const ctx = document.getElementById('cityChart').getContext('2d');
         const cityChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels:JSON.parse('{{ cities|safe }}'),
+                labels: cities,
                 datasets: [
                     {
-                        label: 'Average Temperature (°F)',
-                        data: JSON.parse('{{ avg_temps|safe }}'),
+                        label: 'Average Temperature (°F)',  // Default label
+                        data: avgTemps,
                         backgroundColor: 'rgba(255, 99, 132, 0.5)',
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1,
                     },
                     {
                         label: 'Average Humidity (%)',
-                        data: JSON.parse('{{ avg_humidities|safe }}'),
+                        data: avgHumidities,
                         backgroundColor: 'rgba(54, 162, 235, 0.5)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1,
@@ -33,12 +170,21 @@
             options: {
                 responsive: true,
                 scales: {
-                    x: { title: { display: true, text: 'City' } },
-                    y: { title: { display: true, text: 'Values' } }
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'City'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Values'
+                        }
+                    }
                 }
             }
         });
     </script>
-    <a href="{% url 'all_weather' %}">Back to Home</a>
 </body>
 </html>
